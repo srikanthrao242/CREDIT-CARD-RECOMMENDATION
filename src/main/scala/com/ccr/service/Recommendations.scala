@@ -1,7 +1,7 @@
 package com.ccr.service
 
 import com.ccr.apis.{CSCards, ScoredCards}
-import com.ccr.entities.{CSCardsRequest, CSCardsResponse, CreditCard, ScoredCardsRequest, ScoredCardsResponse}
+import com.ccr.entities.{CSCardsRequest, CSCardsResponse, CreditCard, CreditCardRequest, ScoredCardsRequest, ScoredCardsResponse}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -50,4 +50,14 @@ trait Recommendations {
       prepareRecommendations(csc, scc)
     }
 
+}
+
+object Recommendations {
+  def apply(_cSCardsClient: CSCards, _scoredCardsClient: ScoredCards)(
+    implicit _exectionContext: ExecutionContext
+  ): Recommendations = new Recommendations{
+    override val cSCardsClient: CSCards = _cSCardsClient
+    override implicit val executionContext: ExecutionContext = _exectionContext
+    override val scoredCardsClient: ScoredCards = _scoredCardsClient
+  }
 }

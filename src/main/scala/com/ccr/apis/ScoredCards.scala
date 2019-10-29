@@ -28,3 +28,14 @@ trait ScoredCards {
         .to[List[ScoredCardsResponse]]
     } yield Right(response)
 }
+
+object ScoredCards {
+  def apply(_httpClient: HttpClient)(
+    implicit _executionContext: ExecutionContext,
+    _actorMaterializer: ActorMaterializer
+  ): ScoredCards = new ScoredCards{
+    override implicit val actorMaterializer: ActorMaterializer = _actorMaterializer
+    override implicit val executionContext: ExecutionContext = _executionContext
+    override val httpClient: HttpClient = _httpClient
+  }
+}

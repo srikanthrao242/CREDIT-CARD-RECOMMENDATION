@@ -29,3 +29,14 @@ trait CSCards {
       response <- new Unmarshal(httpResponse.entity).to[List[CSCardsResponse]]
     } yield Right(response)
 }
+
+object CSCards {
+  def apply(_httpClient: HttpClient)(
+    implicit _executionContext: ExecutionContext,
+    _actorMaterializer: ActorMaterializer
+  ): CSCards = new CSCards{
+    override implicit val actorMaterializer: ActorMaterializer = _actorMaterializer
+    override implicit val executionContext: ExecutionContext = _executionContext
+    override val httpClient: HttpClient = _httpClient
+  }
+}
