@@ -23,7 +23,7 @@ trait CSCards {
   ): Future[Either[Throwable, List[CSCardsResponse]]] =
     for {
       httpResponse <- httpClient.doPost(
-        CCR_Config.config.constants.cscards_endpoints,
+        s"${CCR_Config.config.constants.cscards_endpoints}/api/global/backend-tech-test/v1/cards",
         data.toJson.toString()
       )
       response <- new Unmarshal(httpResponse.entity).to[List[CSCardsResponse]]
@@ -34,8 +34,9 @@ object CSCards {
   def apply(_httpClient: HttpClient)(
     implicit _executionContext: ExecutionContext,
     _actorMaterializer: ActorMaterializer
-  ): CSCards = new CSCards{
-    override implicit val actorMaterializer: ActorMaterializer = _actorMaterializer
+  ): CSCards = new CSCards {
+    override implicit val actorMaterializer: ActorMaterializer =
+      _actorMaterializer
     override implicit val executionContext: ExecutionContext = _executionContext
     override val httpClient: HttpClient = _httpClient
   }

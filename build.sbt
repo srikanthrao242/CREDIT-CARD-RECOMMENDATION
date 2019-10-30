@@ -9,3 +9,5 @@ lazy val root = (project in file("."))
   .settings(name := _name)
   .settings(commonSettings(_version,_scalaVersion))
   .settings(libraryDependencies ++= (akka ++ spray ++ config_dep ++ test_dep))
+
+fork in run := true

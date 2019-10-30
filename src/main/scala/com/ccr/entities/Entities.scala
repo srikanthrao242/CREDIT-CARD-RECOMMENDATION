@@ -10,12 +10,12 @@ case class ConstantsConf(cscards_endpoints: String,
 case class CCR(http: HttpConf, constants: ConstantsConf)
 case class CCRConf(ccr: CCR)
 
-case class CreditCardFResponse(description: String)
+case class CreditCardFResponse(description: String) extends Exception
 case class CreditCardRequest(name: String, creditScore: Int, salary: Int) {
-  require(name.isEmpty, "name in Request should not be empty")
-  require(creditScore < 0 && creditScore > 700,
+  require(name.length > 0, "name in Request should not be empty")
+  require(creditScore >= 0 && creditScore <= 700,
           "creditScore should be between 0 and 700")
-  require(salary < 0, "salary should not be less than 0")
+  require(salary > 0, "salary should not be less than 0")
 }
 
 case class CreditCard(apr: Double,

@@ -2,7 +2,7 @@
 import sbt._
 import sbt.Keys._
 object ProjectSettings {
-  val scalaOps = Seq()
+  val scalaOps = Seq("-deprecation", "-unchecked", "-feature")
 
   val commonSettings = (_version:String, _scalaVersion:String) => Seq(
     version := _version,

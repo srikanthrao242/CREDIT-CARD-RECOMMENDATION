@@ -21,7 +21,7 @@ trait ScoredCards {
   ): Future[Either[Throwable, List[ScoredCardsResponse]]] =
     for {
       httpResponse <- httpClient.doPost(
-        CCR_Config.config.constants.cscards_endpoints,
+        s"${CCR_Config.config.constants.cscards_endpoints}/api/global/backend-tech-test/v2/creditcards",
         data.toJson.toString()
       )
       response <- new Unmarshal(httpResponse.entity)

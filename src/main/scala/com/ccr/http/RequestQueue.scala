@@ -19,25 +19,16 @@ trait RequestQueue {
   val queueSize: Int
 
   val logger = Logger.getLogger(this.getClass.getName)
-  private lazy val poolClientFlow =
-    Http().cachedHostConnectionPool[Promise[HttpResponse]](host, 443)
-
-  private lazy val queue =
-    Source
-      .queue[(HttpRequest, Promise[HttpResponse])](queueSize,
-                                                   OverflowStrategy.dropNew)
-      .map { requestResponsePair =>
-        logger.info(s"Http Request : ${requestResponsePair._1}")
-        requestResponsePair
-      }
+  val poolClientFlow = Http()
+    .cachedHostConnectionPool[Promise[HttpResponse]](host,443)
+  val queue =
+    Source.queue[(HttpRequest, Promise[HttpResponse])](
+      queueSize, OverflowStrategy.dropNew
+    )
       .via(poolClientFlow)
       .toMat(Sink.foreach({
-        case (Success(resp), p) =>
-          p.success(resp)
-          ()
-        case (Failure(resp), p) =>
-          p.failure(resp)
-          ()
+        case ((Success(resp), p)) => p.success(resp)
+        case ((Failure(e), p))    => p.failure(e)
       }))(Keep.left)
       .run()
 
@@ -45,21 +36,13 @@ trait RequestQueue {
     implicit ec: ExecutionContext
   ): Future[HttpResponse] = {
     val responsePromise = Promise[HttpResponse]()
-    queue
-      .offer(request -> responsePromise)
-      .flatMap {
-        case QueueOfferResult.Enqueued => responsePromise.future
-        case QueueOfferResult.Dropped =>
-          Future.failed(
-            new RuntimeException("Queue overflowed. Try again later")
-          )
-        case QueueOfferResult.Failure(ex) => Future.failed(ex)
-        case QueueOfferResult.QueueClosed =>
-          Future
-            .failed(new RuntimeException("Queue was closed . Try again later"))
-      }
+    queue.offer(request -> responsePromise).flatMap {
+      case QueueOfferResult.Enqueued    => responsePromise.future
+      case QueueOfferResult.Dropped     => Future.failed(new RuntimeException("Queue overflowed. Try again later."))
+      case QueueOfferResult.Failure(ex) => Future.failed(ex)
+      case QueueOfferResult.QueueClosed => Future.failed(new RuntimeException("Queue was closed (pool shut down) while running the request. Try again later."))
+    }
   }
-
 }
 
 object RequestQueue {

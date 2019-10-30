@@ -25,7 +25,7 @@ trait Router extends SuperTrait with RouteConcatenation {
   }
   val config = CCR_Config.config
 
-  val httpClient = HttpClient(config.constants.queueSize)
+  val httpClient = HttpClient.apply(config.constants.queueSize)
   val csCardsClient = CSCards.apply(httpClient)
   val scoreCardClient = ScoredCards.apply(httpClient)
 
@@ -44,7 +44,7 @@ trait Router extends SuperTrait with RouteConcatenation {
               ScoredCardsRequest(req.name, req.creditScore, req.salary)
             )
             onComplete(recomm) {
-              case Success(value)     => complete(value.toJson.toString())
+              case Success(value)     => complete(value)
               case Failure(exception) => throw exception
             }
           }
