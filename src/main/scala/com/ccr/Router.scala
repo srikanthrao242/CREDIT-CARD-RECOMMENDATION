@@ -19,33 +19,53 @@ sealed trait SuperTrait
 trait Router extends SuperTrait with RouteConcatenation {
   this: AkkaCoreModule =>
 
-  implicit val exceptionHandler = ExceptionHandler {
-    case exception: Exception =>
-      complete(CreditCardFResponse(exception.getMessage))
-  }
+  implicit val rejectionHandler: RejectionHandler =
+    RejectionHandler.default.mapRejectionResponse {
+      case res @ HttpResponse(_, _, ent: HttpEntity.Strict, _) =>
+        val message = ent.data.utf8String.replaceAll("\"", """\"""")
+        res.copy(
+          entity = CreditCardFResponse(message).toJson.toString()
+        )
+      case x => x
+    }
+  implicit val exceptionHandler: ExceptionHandler =
+    ExceptionHandler {
+      case e: Exception =>
+        e.printStackTrace()
+        complete(
+          HttpResponse(
+            StatusCodes.BadRequest,
+            Nil,
+            CreditCardFResponse(e.getMessage).toJson.toString()
+          )
+        )
+    }
   val config = CCR_Config.config
 
-  val httpClient = HttpClient.apply(config.constants.queueSize)
+  val httpClient =
+    HttpClient.apply(config.constants.queueSize)
   val csCardsClient = CSCards.apply(httpClient)
   val scoreCardClient = ScoredCards.apply(httpClient)
+  val recommendations =
+    Recommendations.apply(csCardsClient, scoreCardClient)
 
-  val recommendations = Recommendations.apply(csCardsClient, scoreCardClient)
   val mainRoute: Route =
     handleExceptions(exceptionHandler) {
-      path("/") {
-        get {
+      handleRejections(rejectionHandler) {
+        pathSingleSlash {
           complete(StatusCodes.OK)
-        }
-      } ~ path("creditcards") {
-        post {
-          entity(as[CreditCardRequest]) { req =>
-            val recomm = recommendations.doRecommendations(
-              CSCardsRequest(req.name, req.creditScore),
-              ScoredCardsRequest(req.name, req.creditScore, req.salary)
-            )
-            onComplete(recomm) {
-              case Success(value)     => complete(value)
-              case Failure(exception) => throw exception
+        } ~
+        pathPrefix("creditcards") {
+          post {
+            entity(as[CreditCardRequest]) { req =>
+              val recomm = recommendations.doRecommendations(
+                CSCardsRequest(req.name, req.creditScore),
+                ScoredCardsRequest(req.name, req.creditScore, req.salary)
+              )
+              onComplete(recomm) {
+                case Success(value)     => complete(value)
+                case Failure(exception) => throw exception
+              }
             }
           }
         }
