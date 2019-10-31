@@ -1,7 +1,7 @@
 package com.ccr.service
 
 import com.ccr.apis.{CSCards, ScoredCards}
-import com.ccr.entities.{CSCardsRequest, CSCardsResponse, CreditCard, CreditCardRequest, ScoredCardsRequest, ScoredCardsResponse}
+import com.ccr.entities._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -12,9 +12,15 @@ trait Recommendations {
   val scoredCardsClient: ScoredCards
 
   def findSortingScore(eligibility: Double, apr: Double): Double =
-    BigDecimal(eligibility * (math.sqrt(1 / apr)))
-      .setScale(3, BigDecimal.RoundingMode.HALF_UP)
+    modifyScore(BigDecimal(eligibility * math.pow(1d / apr, 2d)))
+      .setScale(3, BigDecimal.RoundingMode.DOWN)
       .toDouble
+
+  def modifyScore(v: BigDecimal): BigDecimal =
+    if (v < 0.1)
+      modifyScore(10 * v)
+    else
+      v
 
   def prepareRecommendations(csc: List[CSCardsResponse],
                              scc: List[ScoredCardsResponse]): List[CreditCard] =
@@ -41,11 +47,15 @@ trait Recommendations {
     } yield {
       val csc: List[CSCardsResponse] = csCards match {
         case Right(cs) => cs
-        case Left(ex)  => throw new Exception(ex.getMessage)
+        case Left(ex) =>
+          ex.printStackTrace()
+          throw new Exception(ex.getMessage)
       }
       val scc: List[ScoredCardsResponse] = scoreCards match {
         case Right(sc) => sc
-        case Left(ex)  => throw new Exception(ex.getMessage)
+        case Left(ex) =>
+          ex.printStackTrace()
+          throw new Exception(ex.getMessage)
       }
       prepareRecommendations(csc, scc)
     }
@@ -55,9 +65,9 @@ trait Recommendations {
 object Recommendations {
   def apply(_cSCardsClient: CSCards, _scoredCardsClient: ScoredCards)(
     implicit _exectionContext: ExecutionContext
-  ): Recommendations = new Recommendations{
+  ): Recommendations = new Recommendations {
     override val cSCardsClient: CSCards = _cSCardsClient
-    override implicit val executionContext: ExecutionContext = _exectionContext
     override val scoredCardsClient: ScoredCards = _scoredCardsClient
+    override implicit val executionContext: ExecutionContext = _exectionContext
   }
 }
