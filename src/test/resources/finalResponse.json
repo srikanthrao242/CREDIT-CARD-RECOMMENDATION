@@ -1,0 +1,20 @@
+[
+  {
+    "apr": 19.4,
+    "cardScore": 0.212,
+    "name": "ScoredCard Builder",
+    "provider": "ScoredCards"
+  },
+  {
+    "apr": 21.4,
+    "cardScore": 0.137,
+    "name": "SuperSaver Card",
+    "provider": "CSCards"
+  },
+  {
+    "apr": 19.2,
+    "cardScore": 0.135,
+    "name": "SuperSpender Card",
+    "provider": "CSCards"
+  }
+]
