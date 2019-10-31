@@ -28,7 +28,7 @@ trait HttpClient {
         .apply(uri.getHost, queueSize)
         .queueRequest(
           HttpRequest(uri = url, method = HttpMethods.POST)
-            .withEntity(ContentTypes.`application/json`, body)
+            .withEntity(ContentTypes.`application/json`, body),3
         )
     } yield res
   }

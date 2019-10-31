@@ -8,5 +8,5 @@ import scala.concurrent.ExecutionContextExecutor
 trait AkkaCoreModule {
   implicit val actorSystem: ActorSystem = ActorSystem()
   implicit val materilizer: ActorMaterializer = ActorMaterializer()
-  implicit val ec: ExecutionContextExecutor = actorSystem.dispatcher
+  implicit val executor: ExecutionContextExecutor = actorSystem.dispatcher
 }

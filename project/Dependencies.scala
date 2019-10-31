@@ -10,9 +10,10 @@ object Dependencies {
   val scala_mock = "4.4.0"
 
   val akka = Seq(
-    "com.typesafe.akka" %% "akka-http"         % akka_http,
-    "com.typesafe.akka" %% "akka-http-testkit" % akka_http,
-    "com.typesafe.akka" %% "akka-stream"       % akka_stream
+    "com.typesafe.akka" %% "akka-http"           % akka_http,
+    "com.typesafe.akka" %% "akka-http-testkit"   % akka_http % Test,
+    "com.typesafe.akka" %% "akka-stream-testkit" % akka_stream % Test,
+    "com.typesafe.akka" %% "akka-stream"         % akka_stream
   )
   val spray = Seq(
     "com.typesafe.akka" %% "akka-http-spray-json" % akka_http,
