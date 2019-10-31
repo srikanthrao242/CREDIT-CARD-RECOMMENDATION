@@ -26,6 +26,11 @@ akka-stream<br>
 pure-config<br>
 spray-json<br>
 
+### Environment variables<br>
+
 ### compile and run<br>
+HTTP_PORT<br>
+CSCARDS_ENDPOINT<br>
+SCOREDCARDS_ENDPOINT<br>
 
 Find start.sh file it will do clean compile and start the server 
