@@ -13,8 +13,8 @@ approved) and an APR for each card (watch out for the scales in the sections
 below), these should be used along with the formula below to sort the cards
 returned from your API, with the highest scoring cards being ranked higher. The
 score should be returned in the response for each card as cardScore.
-
 <br>
+
 #### creditcards api<br>
 (/creaditcards) when we call this api it will do following. <br>
 
