@@ -3,6 +3,17 @@
 
 #### Introduction <br>
 This service will expose an api endpoint that consumes some information about the user’s financial situation and return credit cards recommended for them, sorted based on their eligibility and the cards’ APRss(annual percentage rate).
+
+The data it’ll be returning comes from two
+partner APIs, described in the sections below. The provider endpoints below are
+public and do not require any authorisation tokens to access.
+
+Each partner returns an eligibility rating (i.e. how likely it is the user will be
+approved) and an APR for each card (watch out for the scales in the sections
+below), these should be used along with the formula below to sort the cards
+returned from your API, with the highest scoring cards being ranked higher. The
+score should be returned in the response for each card as cardScore.
+
 <br>
 #### creditcards api<br>
 (/creaditcards) when we call this api it will do following. <br>
